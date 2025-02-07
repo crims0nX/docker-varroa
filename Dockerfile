@@ -3,58 +3,65 @@
 FROM ghcr.io/linuxserver/baseimage-alpine:3.20 as buildstage
 
 # build variables
-ARG SYNCTHING_RELEASE
+ARG VARROA_RELEASE
 
 RUN \
  echo "**** install build packages ****" && \
   apk add --no-cache \
     build-base \
+    ca-certificates \
+    yq-go \
     go
+
+# Run make commands to prepare and build the binary
+RUN go get -u github.com/divan/depscheck
+RUN go get github.com/warmans/golocc
 
 RUN \
   echo "**** fetch source code ****" && \
-  if [ -z ${SYNCTHING_RELEASE+x} ]; then \
-    SYNCTHING_RELEASE=$(curl -sX GET "https://api.github.com/repos/syncthing/syncthing/releases/latest" \
-    | awk '/tag_name/{print $4;exit}' FS='[""]'); \
+  if [ -z ${VARROA_RELEASE+x} ]; then \
+    VARROA_RELEASE=$(curl -sX GET "https://gitlab.com/api/v4/projects/2399282/releases" \
+    | yq '.[0].tag_name'); \
   fi && \
   mkdir -p \
-    /tmp/sync && \
+    /tmp/varroa && \
   curl -o \
-  /tmp/syncthing-src.tar.gz -L \
-    "https://github.com/syncthing/syncthing/archive/${SYNCTHING_RELEASE}.tar.gz" && \
+  /tmp/varroa-src.tar.gz -L \
+    "https://gitlab.com/passelecasque/varroa/-/archive/${VARROA_RELEASE}/varroa-${VARROA_RELEASE}.tar.gz" && \
   tar xf \
-  /tmp/syncthing-src.tar.gz -C \
-    /tmp/sync --strip-components=1 && \
+  /tmp/varroa-src.tar.gz -C \
+    /tmp/varroa --strip-components=1 && \
   echo "**** compile syncthing  ****" && \
-  cd /tmp/sync && \
-  go clean -modcache && \
-  CGO_ENABLED=0 go run build.go \
-    -no-upgrade \
-    -version=${SYNCTHING_RELEASE} \
-    build syncthing
+  cd /tmp/varroa && \
+  go mod download && \
+  CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' varroa
+
+RUN echo 'varroa privilegies' && ls -la /tmp/varroa
 
 ############## runtime stage ##############
 FROM ghcr.io/linuxserver/baseimage-alpine:3.20
 
 # set version label
-ARG BUILD_DATE
-ARG VERSION
-LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="thelamer"
+LABEL maintainer="crims0nX"
 
 # environment settings
 ENV HOME="/config"
 
-RUN \
-  echo "**** create var lib folder ****" && \
-  install -d -o abc -g abc \
-    /var/lib/syncthing && \
-  printf "Linuxserver.io version: ${VERSION}\nBuild-date: ${BUILD_DATE}" > /build_version
+# RUN \
+#   echo "**** create var lib folder ****" && \
+#   install -d -o abc -g abc \
+#     /var/lib/syncthing
 
 # copy files from build stage and local files
-COPY --from=buildstage /tmp/sync/syncthing /usr/bin/
 COPY root/ /
+## varroa
+COPY --from=buildstage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=buildstage /tmp/varroa/varroa /usr/bin/
 
 # ports and volumes
-EXPOSE 8384 22000/tcp 22000/udp 21027/UDP
+EXPOSE 9080 9081
+
 VOLUME /config
+VOLUME /watch
+VOLUME /downloads
+
