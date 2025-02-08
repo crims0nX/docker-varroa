@@ -1,7 +1,22 @@
-#!/usr/bin/with-contenv bash
-# shellcheck shell=bash
+#!/command/execlineb -P
 
-exec \
-    s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z localhost 9080" \
-        s6-setuidgid abc varroa \
-        start --no-daemon
+importas lsio_non_root_user LSIO_NON_ROOT_USER
+
+define wdir /config
+
+# If non-root user is set, run 's6-setuidgid'.
+ifelse { test -z ${lsio_non_root_user} }
+{
+  # s6-notifyoncheck needs to run in the same folder as the service!
+  # Check 'usage' section from here: https://skarnet.org/software/s6/s6-notifyoncheck.html
+  s6-notifyoncheck -d -n 300 -w 1000
+    s6-setuidgid abc
+    foreground { echo non-root mode }
+    cd ${wdir}
+    varroa start --no-daemon
+}
+s6-notifyoncheck -d -n 300 -w 1000
+  foreground { echo non-root mode }
+  cd ${wdir}
+  varroa start --no-daemon
+    

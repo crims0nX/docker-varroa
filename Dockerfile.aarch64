@@ -56,5 +56,5 @@
 # COPY root/ /
 
 # # ports and volumes
-# EXPOSE 9080 9081
+# EXPOSE 19080 19081
 # VOLUME /config

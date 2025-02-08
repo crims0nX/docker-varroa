@@ -30,8 +30,8 @@ services:
       - /path/to/data1:/data1
       - /path/to/data2:/data2
     ports:
-      - 9080:9080
-      - 9081:9081
+      - 19080:19080
+      - 19081:19081
     restart: unless-stopped
 ```
 
@@ -43,8 +43,8 @@ docker run -d \
   -e PUID=1000 \
   -e PGID=1000 \
   -e TZ=Etc/UTC \
-  - 9080:9080 \
-  - 9081:9081 \
+  -p 19080:19080 \
+  -p 19081:19081 \
   -v /path/to/varroa/config:/config \
   -v /path/to/data1:/data1 \
   -v /path/to/data2:/data2 \
@@ -58,8 +58,8 @@ Containers are configured using parameters passed at runtime (such as those abov
 
 | Parameter | Function |
 | :----: | --- |
-| `-p 9080:9080` | Webserver HTTPS  |
-| `-p 9081:9081` | Webserver HTTP   |
+| `-p 19080:19080` | Webserver HTTPS  |
+| `-p 19081:19081` | Webserver HTTP   |
 | `-e PUID=1000` | for UserID - see below for explanation |
 | `-e PGID=1000` | for GroupID - see below for explanation |
 | `-e TZ=Etc/UTC` | specify a timezone to use, see this [list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List). |
@@ -204,17 +204,37 @@ Below are the instructions for updating containers:
 >[!TIP]
 >We recommend [Diun](https://crazymax.dev/diun/) for update notifications. Other tools that automatically update containers unattended are not recommended or supported.
 
+## Run locally
+
+```bash
+docker run --name varroa --rm -d \
+  -e PUID=1000 \
+  -e PGID=1000 \
+  -e TZ=Etc/UTC \
+  -p 19080:19080 \
+  -p 19081:19081 \
+  -v $(pwd)/config:/config \
+  -v $(pwd)/watch:/watch \
+  -v $(pwd)/downloads:/downloads \
+  -v $(pwd)/library:/library \
+  crims0nX/varroa
+```
+
 ## Building locally
 
 If you want to make local modifications to these images for development purposes or just to customize the logic:
 
+* Clone and cd into the repository:
+
 ```bash
 git clone https://github.com/crims0nX/docker-varroa
 cd docker-varroa
-docker build \
-  --no-cache \
-  --pull \
-  -t <img_url>/varroa:latest .
+```
+
+* Run:
+
+```bash
+docker build --no-cache --progress=plain -t crims0nX/varroa .
 ```
 
 The ARM variants can be built on x86_64 hardware and vice versa using `lscr.io/linuxserver/qemu-static`
@@ -224,41 +244,3 @@ docker run --rm --privileged lscr.io/linuxserver/qemu-static --reset
 ```
 
 Once registered you can define the dockerfile to use with `-f Dockerfile.aarch64`.
-
-## Versions
-
-* **06.06.24:** - Rebase to Alpine 3.20.
-* **05.03.24:** - Rebase to Alpine 3.19.
-* **05.09.23:** - Rebase to Alpine 3.18.
-* **01.07.23:** - Deprecate armhf. As announced [here](https://www.linuxserver.io/blog/a-farewell-to-arm-hf)
-* **13.02.23:** - Rebase to Alpine 3.17, migrate to s6v3.
-* **17.08.22:** - Build on alpine 3.16 for go 1.18).
-* **03.05.22:** - Rebase to alpine 3.15 (builds on edge for go 1.18).
-* **05.10.21:** - Rebase to alpine 3.14.
-* **12.05.21:** - Remove sysctl parameter again
-* **03.05.21:** - Raise maximum UDP buffer size.
-* **03.05.21:** - Add port mapping for 22000/udp.
-* **29.01.21:** - Deprecate `UMASK_SET` in favor of UMASK in baseimage, see above for more information.
-* **23.01.21:** - Rebasing to alpine 3.13.
-* **15.09.20:** - Use go from alpine edge repo to compile. Remove duplicate UMASK env var. Add hostname setting.
-* **01.06.20:** - Rebasing to alpine 3.12.
-* **19.12.19:** - Rebasing to alpine 3.11.
-* **28.06.19:** - Rebasing to alpine 3.10.
-* **23.03.19:** - Switching to new Base images, shift to arm32v7 tag.
-* **05.03.19:** - Update Build process for v1.1.0 release.
-* **22.02.19:** - Rebasing to alpine 3.9.
-* **16.01.19:** - Add pipeline logic and multi arch.
-* **30.07.18:** - Rebase to alpine 3.8 and use buildstage.
-* **13.12.17:** - Rebase to alpine 3.7.
-* **25.10.17:** - Add env for manual setting of umask.
-* **29.07.17:** - Simplify build structure as symlinks failing on > 0.14.32
-* **28.05.17:** - Rebase to alpine 3.6.
-* **08.02.17:** - Rebase to alpine 3.5.
-* **01.11.16:** - Switch to compiling latest version from git source.
-* **14.10.16:** - Add version layer information.
-* **30.09.16:** - Fix umask.
-* **09.09.16:** - Add layer badges to README.
-* **28.08.16:** - Add badges to README.
-* **11.08.16:** - Rebase to alpine linux.
-* **18.12.15:** - Initial testing / release (IronicBadger)
-* **24.09.15:** - Inital dev complete (Lonix)
