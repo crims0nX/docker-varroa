@@ -1,0 +1,179 @@
+general:
+  watch_directory: test
+  download_directory: ../varroa/test
+  automatic_metadata_retrieval: true
+  full_metadata_retrieval: true
+  log_level: 2
+  timestamped_logs: true
+
+trackers:
+  - name: blue
+    user: username
+    password: secretpassword
+    url: https://blue.ch
+  - name: purple
+    user: another_username
+    cookie: cookievalue
+    url: https://purple.cd
+  - name: magenta
+    user: yet_another_username
+    api_key: thisisanAPIkey
+    url: https://mangen.ta
+
+stats:
+  - tracker: blue
+    update_period_hour: 1
+    max_buffer_decrease_by_period_mb: 500
+    min_ratio: 0.78
+    target_ratio: 0.8
+  - tracker: purple
+    update_period_hour: 12
+    max_buffer_decrease_by_period_mb: 2500
+
+webserver:
+  serve_stats: true
+  serve_metadata: true
+  theme: dark_green
+  stats_user: httpuser
+  stats_password: httppassword
+  allow_downloads: true
+  token: thisisatoken
+  http_port: 1234
+  https_port: 1235
+  https_hostname: server.that.is.mine.com
+
+gitlab_pages:
+  git_https: https://gitlab.com/something/repo.git
+  user: gitlabuser
+  password: anotherpassword
+
+notifications:
+  pushover:
+    token: tokenpushovertoken
+    user: userpushoveruser
+    include_buffer_graph: true
+  webhooks:
+    address: http://some.thing
+    token: tokenwebhooktoken
+    trackers:
+      - blue
+  irc:
+    tracker: blue
+    user: irc_name
+
+library:
+  directory: test
+  use_hard_links: true
+  folder_template: $a/$a ($y) $t [$f $q] [$s] [$l $n $e]
+  music_file_template: $dn.$tn. $ta - $tt
+  additional_source_directories:
+    - ../varroa/test
+    - ../varroa/cmd
+  aliases_file: test/aliases.yaml
+  categories_file: test/categories.yaml
+  playlist_directory: test
+  move_sorted: false
+  automatic_mode: true
+
+metadata:
+  discogs_token: THISISASECRETTOKENGENERATEDFROMDISCOGSACCOUNT
+
+mpd:
+  server: localhost:1234
+  password: optional
+  library: ../varroa/test
+
+autosnatch:
+  - tracker: blue
+    local_address: 1.2.3.4
+    irc_server: irc.server.net:6697
+    irc_key: kkeeyy
+    irc_ssl: true
+    nickserv_password: something
+    bot_name: mybot
+    announcer: Bee
+    announce_channel: "#blue-announce"
+    blacklisted_uploaders:
+      - AwfulUser
+  - tracker: purple
+    irc_server: irc.server.cd:6697
+    irc_key: kkeeyy!
+    irc_ssl: true
+    irc_ssl_skip_verify: true
+    nickserv_password: somethingŁ
+    bot_name: bobot
+    announcer: bolivar
+    announce_channel: "#announce"
+
+filters:
+  - name: perfect
+    perfect_flac: true
+    unique_in_group: true
+    tracker:
+      - blue
+    uploader:
+      - best_uploader_ever
+      - this other guy
+    excluded_type:
+      - Concert Recording
+    reject_unknown_releases: true
+    reject_trumpable_releases: true
+    title:
+      - This Very Specific Release
+      - r/[dD]eluxe
+      - xr/Ibiza
+    edition:
+      - Bonus
+      - Anniversary
+      - r/[dD]eluxe
+      - xr/[cC][lL][eE][aA][nN]
+    edition_year:
+      - 2014
+      - 2015
+    edition_year_range:
+      - 2016-*
+    blacklisted_uploaders:
+      - ThisOtherGuy
+
+  - name: test
+    year:
+      - 2016
+      - 2017
+    year_range:
+      - 1962-1965
+      - 2018-*
+    source:
+      - CD
+      - WEB
+    format:
+      - FLAC
+      - MP3
+    quality:
+      - Lossless
+      - 24bit Lossless
+      - 320
+      - V0 (VBR)
+    has_cue: true
+    has_log: true
+    log_score: 80
+    allow_scene: true
+    allow_duplicates: true
+    type:
+      - Album
+      - EP
+    watch_directory: test
+    min_size_mb: 10
+    max_size_mb: 500
+    required_tags:
+      - indie
+    included_tags:
+      - hip.hop
+      - pop
+    excluded_tags:
+      - metal
+    artist:
+      - The Beatles
+    excluded_artist:
+      - Spammy McSpam
+    record_label:
+      - Warp
