@@ -1,0 +1,30 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+# mkdir -p /run/jackett-temp
+
+# if [[ -z ${LSIO_NON_ROOT_USER} ]]; then
+#     if [[ "${AUTO_UPDATE,,}" == "true" ]]; then
+#         lsiown -R abc:abc \
+#             /app/Jackett
+#     fi
+
+#     # permissions
+#     lsiown -R abc:abc \
+#         /config \
+#         /run/jackett-temp
+# fi
+
+exec >/config/init-varroa.log 2>&1
+
+echo "Setting up Varroa configuration"
+
+cp /config/config.yaml "$HOME"
+
+if [[ -z ${LSIO_NON_ROOT_USER} ]]; then
+    # permissions
+    # user bind, workdir varroa
+    lsiown -R abc:abc \
+        /config \
+        "$HOME"
+fi

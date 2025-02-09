@@ -61,12 +61,13 @@ FROM ghcr.io/linuxserver/baseimage-alpine:$ALPINE_VER
 # set version label
 LABEL maintainer="crims0nX"
 
-ENV HOME="/config"  
+ENV HOME="/app"  
 
 RUN \
  echo "**** runtime deps ****" && \
   apk add --no-cache \
-    libc6-compat ca-certificates openssl
+    libc6-compat ca-certificates openssl strace
+# gcompat
 
 # RUN \
 #   echo "**** create var lib folder ****" && \
@@ -80,7 +81,11 @@ COPY root/ /
 # COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /tmp/varroa/ /varroa
 
-RUN install -m 755 /varroa/varroa /varroa/varroa-fuse /usr/bin
+# Append 'b' to original binary
+RUN mv /varroa/varroa /varroa/varroab
+RUN install -m 755 /varroa/varroab /varroa/varroa-fuse /app
+# Use 'varroa.sh' as proxy to the binary.
+RUN install -m 755 --no-target-directory /defaults/varroa.sh /app/varroa
 
 # This doesnt work on s6 init setup!
 # WORKDIR /config
@@ -89,6 +94,3 @@ RUN install -m 755 /varroa/varroa /varroa/varroa-fuse /usr/bin
 EXPOSE 19080 19081
 
 VOLUME /config
-VOLUME /watch
-VOLUME /downloads
-VOLUME /library
