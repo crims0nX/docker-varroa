@@ -18,12 +18,13 @@ To help you get started creating a container from this image you can either use 
 ---
 services:
   varroa:
-    image: <img_url>/varroa:latest
+    image: crimsonhub/varroa:latest
     container_name: varroa
     hostname: varroa #optional
     environment:
       - PUID=1000
       - PGID=1000
+      - UMASK=022
       - TZ=Etc/UTC
     volumes:
       - /path/to/varroa/config:/config
@@ -38,46 +39,45 @@ services:
 ### docker cli
 
 ```bash
-docker run -d \
-  --name=varroa \
+docker run --name varroa --rm -d \
   -e PUID=1000 \
   -e PGID=1000 \
+  -e UMASK=022 \
   -e TZ=Etc/UTC \
   -p 19080:19080 \
   -p 19081:19081 \
-  -v /path/to/varroa/config:/config \
-  -v /path/to/data1:/data1 \
-  -v /path/to/data2:/data2 \
-  --restart unless-stopped \
-  <img_url>/varroa:latest
+  -v $(pwd)/config:/config \
+  -v $(pwd)/watch:/watch \
+  -v $(pwd)/downloads:/downloads \
+  -v $(pwd)/library:/library \
+  crimsonhub/varroa:latest
 ```
 
-## Parameters
+### Building locally
 
-Containers are configured using parameters passed at runtime (such as those above). These parameters are separated by a colon and indicate `<external>:<internal>` respectively. For example, `-p 8080:80` would expose port `80` from inside the container to be accessible from the host's IP on port `8080` outside the container.
+If you want to make local modifications to these images for development purposes or just to customize the logic:
 
-| Parameter | Function |
-| :----: | --- |
-| `-p 19080:19080` | Webserver HTTPS  |
-| `-p 19081:19081` | Webserver HTTP   |
-| `-e PUID=1000` | for UserID - see below for explanation |
-| `-e PGID=1000` | for GroupID - see below for explanation |
-| `-e TZ=Etc/UTC` | specify a timezone to use, see this [list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List). |
-| `-v /config` | Configuration files. |
-| `-v /data1` | Data1 |
-| `-v /data2` | Data2 |
-
-## Environment variables from files (Docker secrets)
-
-You can set any environment variable from a file by using a special prepend `FILE__`.
-
-As an example:
+* Clone and cd into the repository:
 
 ```bash
--e FILE__MYVAR=/run/secrets/mysecretvariable
+git clone https://github.com/crimsonhub/docker-varroa
+cd docker-varroa
 ```
 
-Will set the environment variable `MYVAR` based on the contents of the `/run/secrets/mysecretvariable` file.
+* Run:
+
+```bash
+docker build --no-cache --progress=plain -t crimsonhub/varroa .
+```
+
+> The ARM variants can be built on x86_64 hardware and vice versa using `lscr.io/linuxserver/qemu-static`
+> 
+> ```bash
+> docker run --rm --privileged lscr.io/linuxserver/qemu-static --reset
+> ```
+> 
+> Once registered you can define the dockerfile to use with `-f Dockerfile.aarch64`.
+
 
 ## Umask for running applications
 
@@ -101,38 +101,6 @@ Example output:
 ```text
 uid=1000(your_user) gid=1000(your_user) groups=1000(your_user)
 ```
-
-## Docker Mods
-
-The container should work with [linuxserver.io's docker mods](https://mods.linuxserver.io/?mod=universal "view available universal mods.")
-
-[Docker Mods](https://github.com/linuxserver/docker-mods) enables additional functionality within the containers. The list of Mods available for this image (if any) as well as universal mods that can be applied to any one of our images can be accessed via the dynamic badges above.
-
-## Support Info
-
-* Shell access whilst the container is running:
-
-    ```bash
-    docker exec -it varroa /bin/bash
-    ```
-
-* To monitor the logs of the container in realtime:
-
-    ```bash
-    docker logs -f varroa
-    ```
-
-* Container version number:
-
-    ```bash
-    docker inspect -f '{{ index .Config.Labels "build_version" }}' varroa
-    ```
-
-<!-- * Image version number:
-
-    ```bash
-    docker inspect -f '{{ index .Config.Labels "build_version" }}' <img_url>/varroa:latest
-    ``` -->
 
 ## Updating Info
 
@@ -198,49 +166,3 @@ Below are the instructions for updating containers:
     ```bash
     docker image prune
     ```
-
-### Image Update Notifications - Diun (Docker Image Update Notifier)
-
->[!TIP]
->We recommend [Diun](https://crazymax.dev/diun/) for update notifications. Other tools that automatically update containers unattended are not recommended or supported.
-
-## Run locally
-
-```bash
-docker run --name varroa --rm -d \
-  -e PUID=1000 \
-  -e PGID=1000 \
-  -e TZ=Etc/UTC \
-  -p 19080:19080 \
-  -p 19081:19081 \
-  -v $(pwd)/config:/config \
-  -v $(pwd)/watch:/watch \
-  -v $(pwd)/downloads:/downloads \
-  -v $(pwd)/library:/library \
-  crimsonhub/varroa
-```
-
-## Building locally
-
-If you want to make local modifications to these images for development purposes or just to customize the logic:
-
-* Clone and cd into the repository:
-
-```bash
-git clone https://github.com/crimsonhub/docker-varroa
-cd docker-varroa
-```
-
-* Run:
-
-```bash
-docker build --no-cache --progress=plain -t crimsonhub/varroa .
-```
-
-The ARM variants can be built on x86_64 hardware and vice versa using `lscr.io/linuxserver/qemu-static`
-
-```bash
-docker run --rm --privileged lscr.io/linuxserver/qemu-static --reset
-```
-
-Once registered you can define the dockerfile to use with `-f Dockerfile.aarch64`.
