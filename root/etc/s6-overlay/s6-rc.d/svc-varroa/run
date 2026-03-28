@@ -16,10 +16,16 @@ ifelse { test -z ${lsio_non_root_user} }
     foreground { echo "### Non-root mode ###" }
     s6-setuidgid abc
     cd ${wdir}
-    varroa start --no-daemon
+    # fdmove -c 3 1
+    # fdmove -c 4 2
+    # fdmove -c 2 1
+    # redirfd -w 1 /config/svc-varroa.log
+    foreground { echo "### Calling varroa ###" }
+    ./varroa start
 }
 s6-notifyoncheck -d -n 300 -w 1000
   foreground { echo "### Root mode ###" }
   cd ${wdir}
-  varroa start --no-daemon
+  foreground { echo "### Calling varroa ###" }
+  ./varroa start
     
