@@ -67,10 +67,10 @@ body:
   - type: textarea
     attributes:
       description: |
-        Provide a full docker log, output of "docker logs syncthing"
+        Provide a full docker log, output of "docker logs varroa"
       label: Container logs
       placeholder: |
-        Output of `docker logs syncthing`
+        Output of `docker logs varroa`
       render: bash
     validations:
       required: true
