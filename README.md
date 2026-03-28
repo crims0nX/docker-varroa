@@ -3,7 +3,7 @@
 A docker container for the [varroa](https://gitlab.com/passelecasque/varroa) musica tool.
 
 >[!NOTE]
->Adaption of [linuxserver/syncthing](https://github.com/linuxserver/docker-syncthing). Credits for the [LinuxServer.io](https://linuxserver.io) team.
+>Adaption of [linuxserver/syncthing](https://github.com/linuxserver/docker-syncthing). Credits to the [LinuxServer.io](https://linuxserver.io) team.
 
 ## Usage
 
