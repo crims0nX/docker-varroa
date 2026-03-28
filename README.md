@@ -217,7 +217,7 @@ docker run --name varroa --rm -d \
   -v $(pwd)/watch:/watch \
   -v $(pwd)/downloads:/downloads \
   -v $(pwd)/library:/library \
-  crims0nX/varroa
+  crimsonhub/varroa
 ```
 
 ## Building locally
@@ -227,14 +227,14 @@ If you want to make local modifications to these images for development purposes
 * Clone and cd into the repository:
 
 ```bash
-git clone https://github.com/crims0nX/docker-varroa
+git clone https://github.com/crimsonhub/docker-varroa
 cd docker-varroa
 ```
 
 * Run:
 
 ```bash
-docker build --no-cache --progress=plain -t crims0nX/varroa .
+docker build --no-cache --progress=plain -t crimsonhub/varroa .
 ```
 
 The ARM variants can be built on x86_64 hardware and vice versa using `lscr.io/linuxserver/qemu-static`
