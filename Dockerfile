@@ -73,7 +73,7 @@ RUN \
 #   install -d -o abc -g abc \
 #     /var/lib/syncthing
 
-# Necessary for the linuxserver.io scripts!
+# Init files
 COPY root/ /
 
 ## varroa

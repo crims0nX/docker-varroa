@@ -1,8 +1,11 @@
 #!/command/execlineb -P
 
-importas lsio_non_root_user LSIO_NON_ROOT_USER
+# - https://danyspin97.org/blog/getting-started-with-execline-scripting/
+# - https://github.com/just-containers/s6-overlay
 
-define wdir /config
+with-contenv
+importas lsio_non_root_user LSIO_NON_ROOT_USER
+importas wdir HOME
 
 # If non-root user is set, run 's6-setuidgid'.
 ifelse { test -z ${lsio_non_root_user} }
@@ -10,13 +13,13 @@ ifelse { test -z ${lsio_non_root_user} }
   # s6-notifyoncheck needs to run in the same folder as the service!
   # Check 'usage' section from here: https://skarnet.org/software/s6/s6-notifyoncheck.html
   s6-notifyoncheck -d -n 300 -w 1000
+    foreground { echo "### Non-root mode ###" }
     s6-setuidgid abc
-    foreground { echo non-root mode }
     cd ${wdir}
     varroa start --no-daemon
 }
 s6-notifyoncheck -d -n 300 -w 1000
-  foreground { echo non-root mode }
+  foreground { echo "### Root mode ###" }
   cd ${wdir}
   varroa start --no-daemon
     
